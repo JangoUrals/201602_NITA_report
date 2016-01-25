@@ -1,0 +1,94 @@
+
+% Используемые пакеты
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[dvips]{graphicx}
+\usepackage[cp1251]{inputenc}
+\usepackage[russian]{babel}
+%\usepackage{longtable}
+\usepackage{cite}
+\usepackage{subfigure}
+\usepackage{lscape}
+
+% Формат страницы A4:8.27in*11.69in
+%\oddsidemargin 10mm \textwidth 164mm
+\oddsidemargin 10mm \textwidth 162mm
+\topmargin -0.8in \headheight 0.3in \headsep 0.3in \textheight 10.2in \footskip 0.4in
+\sloppypar\setlength{\parskip}{1.5mm} %расстояние между абзацами
+\renewcommand{\@evenhead}{\raisebox{0pt}[\headheight][0pt]{\vbox{\hbox to\textwidth{\strut\hfil\headtext{}\hfil\thepage}\hrule}}}
+\renewcommand{\@oddhead }{\raisebox{0pt}[\headheight][0pt]{\vbox{\hbox to\textwidth{\strut\hfil\headtext{}\hfil\thepage}\hrule}}}
+\renewcommand{\@evenfoot}{}\renewcommand{\@oddfoot}{}\newcommand{\headtext}{}
+
+% Формат рисунков
+\newcommand{\myfigure}[5]
+{\begin{figure}[#1]\vspace{3mm}
+  \centering\includegraphics[scale={#2}]{#3}\caption{#4}\label{#5}\vspace{1mm}
+ \end{figure}}
+\renewcommand{\topfraction}{1.0}\renewcommand{\bottomfraction}{1.0}\renewcommand{\textfraction}{0.0}
+
+% Формат заголовков
+\def\@makechapterhead#1{\vspace*{40\p@}
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+     %\if@mainmatter \LARGE \bfseries \@chapapp\space \thechapter \par\nobreak \vskip 20\p@
+      \if@mainmatter \Large \bfseries \thechapter\space \ % \par\nobreak \vskip 10\p@
+    \fi \fi
+    \interlinepenalty\@M \Large \bfseries #1\par\nobreak
+    \vskip 20\p@ }}
+\def\@schapter#1{
+  \if@twocolumn \@topnewpage[\@makeschapterhead{#1}]
+  \else \@makeschapterhead{#1} \@afterheading \fi}
+\def\@makeschapterhead#1{\vspace*{40\p@}
+  {\parindent \z@ \raggedright
+    \normalfont \interlinepenalty\@M \Large \bfseries #1\par\nobreak
+    \vskip 30\p@ }}
+\renewcommand\section{\@startsection
+  {section}{1}{\z@} {-2.5ex \@plus -1ex \@minus -.2ex}
+  {2.0ex \@plus.2ex} {\normalfont\large\bfseries}}
+\renewcommand\subsection{\@startsection
+  {subsection}{2}{\z@} {-1.5ex\@plus -1ex \@minus -.2ex}
+  {0.5ex \@plus.1ex} {\normalfont\bfseries}}
+
+% Нумерация формул, таблиц, рисунков
+\renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
+\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
+
+% Шрифт
+\fontsize{12pt}{17pt}\selectfont
+
+% Имена заголовков
+\renewcommand{\chaptername}{Глава}
+
+% Сокращения команд
+%
+%  Environments like a numbered theorem
+%
+\theoremstyle{plain}
+\newtheorem{thm}{Теорема}
+\newtheorem{lem}{Лемма}
+\newtheorem{cor}{Следствие}
+\newtheorem{prop}{Предложение}
+\newtheorem{stm}{Утверждение}
+\newtheorem{hyp}{Гипотеза}
+%
+%  Environments like an unnumbered theorem
+%
+\newtheorem*{thm*}{Теорема}
+\newtheorem*{lem*}{Лемма}
+\newtheorem*{cor*}{Следствие}
+\newtheorem*{prop*}{Предложение}
+\newtheorem*{stm*}{Утверждение}
+\newtheorem*{hyp*}{Гипотеза}
+%
+%  Environments like a numbered definition
+%
+\theoremstyle{definition}
+\newtheorem{defi}{Определение}
+\newtheorem{ex}{Пример}
+\newtheorem{rem}{Замечание}
+%
+%  Environments like an unnumbered definition
+%
+\newtheorem*{defi*}{Определение}
+\newtheorem*{ex*}{Пример}
+\newtheorem*{rem*}{Замечание}
