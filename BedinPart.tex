@@ -1,6 +1,15 @@
 \chapter{Одновременное оценивание движения ВС и систематических ошибок. Алгоритмы параллельной фильтрации процессов, связанных через измерения}
 \renewcommand{\headtext}{\thechapter.~Одновременное оценивание движения ВС и систематических ошибок}
 
+\newcommand{\argmin}[1]{\underset{#1}{\mathrm{argmin}}} 
+\newcommand{\argmax}[1]{\underset{#1}{\mathrm{argmax}}} 
+\newcommand{\cov}[1]{\mathbb{C}\mathbf{ov}\!\left\{ #1 \right\}}
+\newcommand{\expect}[1]{\mathbb{E}\!\left\{ #1 \right\}}
+\newcommand{\probab}[1]{\mathbf{P}\!\left\{ #1 \right\}}
+\newcommand{\tr}[1]{\mathrm{tr}\!\left\{ #1 \right\}}
+\newenvironment{mymatrix}[1]{\left[\begin{array}{#1}}{\end{array}\right]}
+\newcommand{\transp}[1]{{#1}^\mathsf{T}}
+
 В настоящее время в системах УВД для определения параметров движения воздушных судов 
 (координаты, скорости, ускорения и т.д.) используются алгоритмы линейного рекуррентного оценивания, 
 близкие по используемой математической технике к фильтру Калмана. 
@@ -79,13 +88,15 @@ $\varsigma_l$ --- вектор параметров, характеризущий состояние РЛС; $w_l(t)$ --- 
 
 \section{Описание задачи наблюдения за ВС}
 
-Каждое воздушное судно подчиняется своему уравнению движения 
+Считаем, что каждое воздушное судно подчиняется независимому, 
+но одному и тому же по структуре уравнению движения. 
+Так движение ВС номер $i$ имеет описание 
 \begin{gather*}
   d\chi_i(t) = f(t, \chi_i(t), u_i(t))dt + dv_{i}(t)\,, 
 \end{gather*}
 где $\chi_i$ --- вектор параметров движения ВС; 
 $f$ --- функция, задающая скорости движения; 
-$u(t)$ --- функция управления; 
+$u_i(t)$ --- функция управления, специфичная для ВС $i$; 
 $dv_{i}$ --- приращение случайного возмущения для непрерывного варианта динамики. 
 В силу того, что наблюдение за ВС ведётся <<в большом масштабе>>, 
 вектор $\chi_i$ может содержать не очень большое число параметров, 
@@ -107,9 +118,11 @@ $A_i$ --- матрица, формирующая вид движения системы, зависящая от текущего значе
 \eqref{Bedin:eq:x-small-control-dynamics}. 
 Далее, будем рассматривать более простую линейную динамику без управления 
 \begin{gather}
-  \chi_i(t_k) = A_i(t_k) \chi_i(t_{k - 1}) + B_i(t_k) v_i(t_k) \,. 
+  \chi_i(t_k) = A_i(\mathcal{T}_k) \chi_i(t_{k - 1}) + B_i(t_k) v_i(t_k) \,. 
   \label{Bedin:eq:x-small-dynamics}
 \end{gather}
+Здесь $\mathcal{T}_k = \{ t_l \in \mathcal{t} \colon \; t_l \leqslant t_k \}$ --- 
+множество моментов времени до текущего включительно. 
 
 В качестве основного варианта при моделировании будем выбирать 
 прямолинейное равномерное движение на плоскости 
@@ -122,12 +135,12 @@ $A_i$ --- матрица, формирующая вид движения системы, зависящая от текущего значе
   \,, \qquad 
   x_i(t_k), v_i(t_k) \in \mathbb{R}^\mathsf{2} 
   \,, \qquad 
-  A_i(t_k) = 
+  A_i(\mathcal{T}_k) = 
   \begin{bmatrix}
     I_\mathsf{2 \times 2} & (t_k - t_{k - 1}) I_\mathsf{2 \times 2} 
   \end{bmatrix}
   \,, 
-  \label{Bedin:eq:straight-line-dynamics}
+  \label{Bedin:eq:x-straight-line-dynamics}
 \end{gather}
 где $x_i$, $v_i$ обозначают векторы координат и скорости на плоскости $\mathbb{R}^\mathsf{2}$. 
 
@@ -147,11 +160,27 @@ $A_i$ --- матрица, формирующая вид движения системы, зависящая от текущего значе
 
 Для параметров $\varsigma_j$, характеризующих систематические ошибки РЛС, также введём динамику 
 \begin{gather}
-  \varsigma_j(t_k) = A^\varsigma_j(t_k) \varsigma_j(t_{k - 1}) + B^\varsigma_i(t_k) v^\varsigma_j(t_k) \,. 
+  \varsigma_j(t_k) = A^\varsigma_j(t_k) \varsigma_j(t_{k - 1}) + B^\varsigma_j(t_k) v^\varsigma_j(t_k) \,. 
   \label{Bedin:eq:s-small-dynamics}
 \end{gather}
-Обычно будем принимать $A^\varsigma_j(t_k) \equiv I$, $B^\varsigma_i(t_k) = 0$. 
 Матрица $B^\varsigma_i$ характеризует дрейф систематических ошибок со временем. 
+Для моделирования будем принимать: 
+\begin{gather}
+  \varsigma_j = 
+  \begin{bmatrix}
+    \Delta^r_j \\ \Delta^\alpha_j 
+  \end{bmatrix}
+  \,, \qquad 
+  A^\varsigma_j(t_k) \equiv I_{\mathsf{2 \times 2}} 
+  \,, \qquad
+  B^\varsigma_i(t_k) \equiv 0_{\mathsf{2 \times 2}}
+  \,. 
+  \label{Bedin:eq:s-const-dynamics}
+\end{gather} 
+Здесь $\Delta^r_j, \Delta^\alpha_j \in \mathbb{R}$ --- 
+значения постоянных систематических ошибок по дальности и азимуту, соответственно.  
+Подробно понятия систематических ошибок по дальности и азимуту введены в отчёте 
+???. 
 
 Рассмотрим общий фазовый вектор 
 \begin{gather}
@@ -166,12 +195,12 @@ $A_i$ --- матрица, формирующая вид движения системы, зависящая от текущего значе
 Уравнения \eqref{Bedin:eq:x-small-dynamics}, \eqref{Bedin:eq:s-small-dynamics} 
 можно переписать как
 \begin{multline}
-  \xi(t_k) = A(t_k) \xi(t_{k - 1}) + B(t_k) v(t_k) 
+  \xi(t_k) = A(\mathcal{T}_k) \xi(t_{k - 1}) + B(t_k) v(t_k) 
   = \\ = 
   \begin{bmatrix}
-    A_1(t_k) & & & & & 0 \\
+    A_1(\mathcal{T}_k) & & & & & 0 \\
      & \ddots & & & & \\
-     & & A_n(t_k) & & & \\ 
+     & & A_n(\mathcal{T}_k) & & & \\ 
     & & & A^\varsigma_1(t_k) & & \\
     & & & & \ddots & \\
     0 & & & & & A^\varsigma_m(t_k) 
@@ -206,21 +235,88 @@ $z_{i j}(t_k)$ положения ВС с номером $i$ при помощи радиолокатора $j$.
 будем считать пренебрежимо редким событием и не будем вводить его в модель наблюдения. 
 Запишем уравнение наблюдения в том виде, как оно должно применяться ко всему большому фазовому вектору. 
 \begin{gather}
-  z(t_k) = z_{i j}(t_k) = C(t_k) \xi(t_k) + D(t_k) w(t_k) 
+  z(t_k) = z_{i j}(t_k) = C(t_k, \xi(t_k)) \xi(t_k) + D(t_k, \xi(t_k)) w(t_k) 
   \,, \label{Bedin:eq:z-big-dynamics} \\ 
-  C(t_k) = 
+  C(t_k, \xi(t_k)) = 
   \bordermatrix{
-    &   &        &   & i        &   &        &   &              n + j           &   &        &   \cr 
-    & 0 & \cdots & 0 & C^x(t_k) & 0 & \cdots & 0 & C^\varsigma_j(t_k, x_i(t_k)) & 0 & \cdots & 0 \cr
+    &   &        &   & i           &   &        &   &              n + j              &   &        &   \cr 
+    & 0 & \cdots & 0 & C^\chi(t_k) & 0 & \cdots & 0 & C^\varsigma_j(t_k, \chi_i(t_k)) & 0 & \cdots & 0 \cr
   }
   \,, \notag \\ 
-  D(t_k) = 
-  \bordermatrix{
-    &   &        &   &   j                &   &        &   \cr 
-    & 0 & \cdots & 0 & D_j(t_k, x_i(t_k)) & 0 & \cdots & 0 \cr
-  }
+  D(t_k, \xi(t_k)) = D_j(t_k, \chi_i(t_k))
+  %\bordermatrix{
+    %&   &        &   &   j                   &   &        &   \cr 
+    %& 0 & \cdots & 0 & D_j(t_k, \chi_i(t_k)) & 0 & \cdots & 0 \cr
+  %}
+  \,, \qquad 
+  w(t_k) = w_j(t_k) 
   \,. \notag 
 \end{gather}
+
+Как указывалось выше, для моделирования будем применять 
+предположение постоянных систематических ошибок по дальности и азимуту. 
+При этом будем использовать линеаризованную модель воздействия таких ошибок на измерения. 
+Соответствующие матрицы $C^\chi(t_k)$, $C^\varsigma(t_k, \chi_i(t_k))$, $D(t_k, \chi_i(t_k))$ имеют вид: 
+\begin{gather*}
+  C^\chi(t_k) \equiv I_\mathsf{2 \times 2} 
+  \,, \qquad 
+  C^\varsigma_j(t_k, \chi_i(t_k)) = 
+  \begin{bmatrix}
+    \frac{1}{\left\lVert x_i(t_k) - x_j^\mathsf{R} \right\rVert} 
+    (x_i(t_k) - x_j^\mathsf{R}) & 
+    \Omega_\mathsf{2 \times 2} 
+    (x_i(t_k) - x_j^\mathsf{R})
+  \end{bmatrix}
+  \,, \\ 
+  D(t_k, \chi_i(t_k)) = 
+  C^\varsigma_j(t_k, \chi_i(t_k)) 
+  \,, \qquad 
+  \Omega^{\frac{\pi}{2}}_\mathsf{2 \times 2} = 
+  \begin{bmatrix}
+     0 & 1 \\ 
+    -1 & 0 
+  \end{bmatrix}
+  \,. 
+\end{gather*}
+Здесь $x_j^\mathsf{R}$ --- координаты точки стояния радиолокатора $j$; 
+$\Omega^{\frac{\pi}{2}}_\mathsf{2 \times 2}$ --- 
+матрица поворота на угол $\frac{\pi}{2}$ против часовой стрелки 
+на плоскости $\mathbb{R}^\mathsf{2}$ с учётом северо-восточной системы координат. 
+Случайные ошибки 
+\begin{gather*}
+  w^\varsigma_j(t_k) = 
+  \begin{bmatrix}
+    w^r_j(t_k) \\ w^\alpha_j(t_k) 
+  \end{bmatrix}
+\end{gather*}
+разделяются на случайные ошибки, действующие по дальности и азимуту. 
+
+Для всех случайных ошибок считаем справедливыми свойства 
+\begin{gather}
+  \expect{v_i(t_k)} = \expect{v^\varsigma_i(t_k)} = \expect{w_j(t_k)} = \expect{w_j(t_k)} = 0 
+  \,, \\ 
+  \cov{v_{i_1}(t_k), v_{i_2}(t_l)} = \delta_{k l} \delta_{i_1 i_2} V 
+  \,, \qquad  
+  \cov{w_{j_1}(t_k), w_{j_2}(t_l)} = \delta_{k l} \delta_{j_1 j_2} W_{j_1} 
+  \,, 
+  \label{Bedin:eq:v-w-properties}
+\end{gather}
+где $\delta_{p q}$ --- символ Кронекера; 
+$V$ --- постоянная матрица дисперсии случайных возмущений уравнений движения;   
+$W_j$ --- постоянная матрица дисперсии случайных ошибок наблюдения для радиолокатора $j$. 
+
+Для моделирования будем применять $W_j$ вида: 
+\begin{gather}
+  W_j = 
+  \begin{bmatrix}
+    \sigma_r^\mathsf{2} & 0 \\
+    0 & \sigma_\alpha^\mathsf{2} 
+  \end{bmatrix}
+  \,, 
+  \label{Bedin:eq:w-cov}
+\end{gather}
+где $\sigma_r$, $\sigma_\alpha$ --- заданные среднеквадратичные отклонения 
+для случайных ошибок наблюдения по дальности и азимуту, соответственно. 
 
 \section{Уравнения оптимальной фильтрации}
 
