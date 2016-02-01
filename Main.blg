@@ -2,5 +2,6 @@ This is BibTeX, Version 0.99dThe top-level auxiliary file: Main.aux
 A level-1 auxiliary file: BedinPart.aux
 A level-1 auxiliary file: FedotovIvanovPart.aux
 A level-1 auxiliary file: SpisLibr.aux
-The style file: iacas.bst
-Database file #1: Library.bib
+I found no \bibdata command---while reading file Main.aux
+I found no \bibstyle command---while reading file Main.aux
+(There were 2 error messages)
