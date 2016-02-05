@@ -87,7 +87,7 @@ $\varsigma_l$ --- вектор параметров, характеризущий состояние РЛС; $w_l(t)$ --- 
 и при этом обладающего низким уровнем погрешности оценивания. 
 Исследование логически продолжает исследование, изложенное в отчёте \cite{otch201505}. 
 
-\section{Описание задачи наблюдения за ВС}
+\section{Описание задачи наблюдения за многими ВС}
 
 Считаем, что каждое воздушное судно подчиняется независимому, 
 но оди по структуре уравнению движения. 
@@ -151,7 +151,7 @@ $A_i$ --- матрица, формирующая вид движения системы, зависящая от текущего значе
 Формирование наблюдений $z_{i j}$ будем описывать следующим уравнением наблюдения, 
 несколько более сложным, чем уравнение \eqref{Bedin:eq:z-simple}: 
 \begin{gather}
-  z_{i j}(t) = C^\chi(t_k) \chi_i(t_k) + 
+  z_{i j}(t) = C^\chi(t_k)_i \chi_i(t_k) + 
   C^\varsigma_j(t_k, \chi_i(t_k)) \varsigma_j(t_k) + 
   D_j(t_k, \chi_i(t_k)) w_j(t_k) \,. 
   \label{Bedin:eq:z-small-dynamics}
@@ -244,7 +244,7 @@ $z_{i j}(t_k)$ положения ВС с номером $i$ при помощи радиолокатора $j$.
   C(t_k, \xi(t_k)) = 
   \bordermatrix{
     &   &        &   & i           &   &        &   &              n + j              &   &        &   \cr 
-    & 0 & \cdots & 0 & C^\chi(t_k) & 0 & \cdots & 0 & C^\varsigma_j(t_k, \chi_i(t_k)) & 0 & \cdots & 0 \cr
+    & 0 & \cdots & 0 & C^\chi_i(t_k) & 0 & \cdots & 0 & C^\varsigma_j(t_k, \chi_i(t_k)) & 0 & \cdots & 0 \cr
   }
   \,, \notag \\ 
   D(t_k, \xi(t_k)) = D_j(t_k, \chi_i(t_k))
@@ -262,7 +262,7 @@ $z_{i j}(t_k)$ положения ВС с номером $i$ при помощи радиолокатора $j$.
 При этом будем использовать линеаризованную модель воздействия таких ошибок на измерения. 
 Соответствующие матрицы $C^\chi(t_k)$, $C^\varsigma(t_k, \chi_i(t_k))$, $D(t_k, \chi_i(t_k))$ имеют вид: 
 \begin{gather}
-  C^\chi(t_k) \equiv 
+  C^\chi_i(t_k) \equiv 
   \begin{bmatrix}
     I_\mathsf{2 \times 2} & 0_\mathsf{2 \times 2}
   \end{bmatrix} 
@@ -301,9 +301,9 @@ $\Omega^{\pi / 2}_\mathsf{2 \times 2}$ ---
 
 Для всех случайных ошибок считаем справедливыми свойства: 
 \begin{gather}
-  \expect{v_i(t_k)} = \expect{v^\varsigma_i(t_k)} = \expect{w_j(t_k)} = \expect{w_j(t_k)} = 0 
+  \expect{v_i(t_k)} = \expect{v^\varsigma_i(t_k)} = \expect{w_j(t_k)} = 0 
   \,, \label{Bedin:eq:v-w-properties} \\ 
-  \cov{v_{i_1}(t_k), v_{i_2}(t_l)} = \delta_{k l} \delta_{i_1 i_2} V 
+  \cov{v_{i_1}(t_k), v_{i_2}(t_l)} = \delta_{k l} \delta_{i_1 i_2} V_{i_1} 
   \,, \qquad  
   \cov{w_{j_1}(t_k), w_{j_2}(t_l)} = \delta_{k l} \delta_{j_1 j_2} W_{j_1} 
   \,, \notag \\ 
@@ -315,8 +315,25 @@ $\Omega^{\pi / 2}_\mathsf{2 \times 2}$ ---
   \notag
 \end{gather}
 где $\delta_{p q}$ --- символ Кронекера; 
-$V$ --- постоянная матрица дисперсии случайных возмущений для уравнений движения;   
+$V_i$ --- постоянная матрица дисперсии случайных возмущений для уравнений движения;   
 $W_j$ --- постоянная матрица дисперсии случайных ошибок наблюдения для радиолокатора $j$. 
+Матрицы ковариаций для больших столбцов $v$ и $w$ будем обозначать
+\begin{gather*}
+  V = 
+  \begin{bmatrix}
+    V_1 & & 0 \\ 
+    & \ddots & \\ 
+    0 & & V_n 
+  \end{bmatrix}
+  \,, \qquad 
+  W = 
+  \begin{bmatrix}
+    W_1 & & 0 \\ 
+    & \ddots & \\ 
+    0 & & W_m 
+  \end{bmatrix}
+  \,.  
+\end{gather*}
 
 Для моделирования будем применять $W_j$ вида: 
 \begin{gather}
@@ -330,8 +347,20 @@ $W_j$ --- постоянная матрица дисперсии случайных ошибок наблюдения для радиолока
 \end{gather}
 где $\sigma_{r j}$, $\sigma_{\alpha j}$ --- заданные среднеквадратичные отклонения 
 для случайных ошибок наблюдения по дальности и азимуту, относящихся к радиолокатору $j$. 
+Матрицы $V_i$ будем брать одинаковыми диагональными 
+\begin{gather}
+  V_i = 
+  \begin{bmatrix}
+    \sigma_{x^1}^\mathsf{2} & & & 0 \\
+    & \sigma_{x^2}^\mathsf{2} & & \\
+    & & \sigma_{v^1}^\mathsf{2} & \\
+    0 & & & \sigma_{v^2}^\mathsf{2}
+  \end{bmatrix}
+  \,. 
+  \label{Bedin:eq:v-cov}
+\end{gather}
 
-\section{Уравнения оптимальной фильтрации}
+\section{Задача фильтрации}
 
 Целью фильтрации является получение оценки $\hat{\xi}(t_k)$ фазового вектора 
 $\xi$ на момент $t_k$ поступления последнего измерения. 
@@ -344,10 +373,10 @@ $\xi$ на момент $t_k$ поступления последнего измерения.
 Также предполагается, что задан некоторый критерий, по которому будет определяться качество оценивания. 
 Популярным выбором является: 
 \begin{gather}
-  J = \expect{\lVert c^\mathsf{T}(\hat{\xi}(t_k) - \xi(t_k))\rVert^\mathsf{2}} \,, 
+  J(t_k) = \expect{\lVert h^\mathsf{T}(\hat{\xi}(t_k) - \xi(t_k))\rVert^\mathsf{2}} \,, 
   \label{Bedin:eq:crit}
 \end{gather}
-где $c^\mathsf{T}$ --- некоторая заданная линейная функция, 
+где $h^\mathsf{T}$ --- некоторая заданная линейная функция, 
 выделяющая, например, некоторую часть координат из всего вектора, 
 $\xi(t_k)$ --- истинное значение фазового вектора $\xi$ в момент времени $t_k$. 
 Поскольку речь идёт об оценивании в присутствии случайных ошибок наблюдения, 
@@ -357,7 +386,7 @@ $\xi(t_k)$ --- истинное значение фазового вектора $\xi$ в момент времени $t_k$.
 Наиболее простыми и разумными с точки зрения оптимальности 
 являются линейные рекуррентные оценки с линейным прогнозированием: 
 \begin{align}
-  \bar{\xi}(t_k) & = A(t_k) \hat{\xi}(t_{k - 1}) 
+  \bar{\xi}(t_k) & = A(\mathcal{T}_k) \hat{\xi}(t_{k - 1}) 
   \,, \label{Bedin:eq:recursive-est-pred} \\
   \hat{\xi}(t_k) & = L(t_k, R(t_k)) \bar{\xi}(t_k) + K(t_k, R(t_k)) z(t_k) 
   \,, \label{Bedin:eq:recursive-est-corr} \\ 
@@ -400,8 +429,8 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 Если оценка $\hat{\xi}(t_{k - 1})$ удовлетворяет условию \eqref{Bedin:eq:est-unbiased-random}, 
 легко видеть, что и оценка $\bar{\xi}(t_k)$ ему удовлетворяет 
 в силу уравнения \eqref{Bedin:eq:x-s-big-dynamics}. 
-Для уравнения коррекции условие несмещённости \eqref{Bedin:eq:est-unbiased-random} 
-приводит к следующему условию 
+Для уравнения коррекции \eqref{Bedin:eq:recursive-est-corr} 
+условие несмещённости \eqref{Bedin:eq:est-unbiased-random} приводит к следующему условию 
 \begin{multline*}
   \expect{\hat{\xi}(t_k)} = 
   L \, \expect{\bar{\xi}(t_k)} + K \, \expect{z(t_k)} 
@@ -431,11 +460,18 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 Так, заменив в выражении \eqref{Bedin:eq:z-simple-C-D} для матрицы $C^\varsigma_j(t_k, \xi(t_k))$ 
 вектор $x_i(t_k)$ на $z_{i j}(t_k)$ или $\bar{x}_i(t_k)$ (часть прогнозной оценки $\bar{\xi}(t_k)$), 
 мы получим близкое выражение, пригодное для использования в линейных алгоритмах. 
-Далее, все алгоритмы будут рассматирваться с условием \eqref{Bedin:eq:est-unbiased-L}. 
+Далее, все алгоритмы будут рассматирваться с условием \eqref{Bedin:eq:est-unbiased-L} 
+с приближенной заменой $x_i(t_k)$ на $\bar{x}_i(t_k)$ в матрице~$C$ --- 
+это соответствует варианту Enhanced Kalman Filter (EKF) для нелинейной системы. 
 При его подстановке в уравнение коррекции получается 
+\begin{gather*}
+  \hat{\xi}(t_k) = \bar{\xi}(t_k) + K(t_k, R(t_k)) \, 
+  \left( z(t_k) - C(t_k, \bar{\xi}(t_k)) \, \bar{\xi}(t_k) \right) \, 
+\end{gather*}
+или в упрощённой записи
 \begin{gather}
-  \hat{\xi}(t_k) = \bar{\xi}(t_k) + K  
-  \left( z(t_k) - C(t_k, \bar{\xi}(t_k)) \, \bar{\xi}(t_k) \right) \,. 
+  \hat{\xi}(t_k) = \bar{\xi}(t_k) + K 
+  \left( z(t_k) - C \, \bar{\xi}(t_k) \right) \,. 
   \label{Bedin:eq:recursive-est-corr-unbiased}
 \end{gather}
 
@@ -444,10 +480,160 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 Таким образом в выражении оценки \eqref{Bedin:eq:recursive-est-corr-unbiased} 
 фигурирует разность между действительным и прогнозым измерениями. 
 
-Введём обозначения. 
+Далее, в разделах посвящённых алгоритмам параллельной фильтрации, 
+поскольку все рассматриваемые соотношения касаются шага между моментами $t_{k - 1}$ и $t_k$, 
+аргументы будут опускаться. Т.~е. будут приняты обозначения 
+\begin{gather*}
+  A = A(\mathcal{T}_k) \,, \qquad B = B(t_k) \,, \qquad 
+  C = C(t_k, \bar{\xi}(t_k)) \,, \qquad D = D(t_k, \bar{\xi}(t_k)) \,. 
+\end{gather*}
+
+Введём обозначение для матрицы ковариаций ошибки оценивания для прогнозной оценки 
+\begin{multline}
+  \bar{P}(t_k) = \cov{\bar{\xi}(t_k) - \xi(t_k)} 
+  = \\ = 
+  \begin{bmatrix}
+    \cov{\bar{\chi}_1(t_k) - \chi_1(t_k), \bar{\chi}_1(t_k) - \chi_1(t_k)} & 
+    \cdots & 
+    \cov{\bar{\chi}_1(t_k) - \chi_1(t_k), \bar{\varsigma}_m(t_k) - \varsigma_m(t_k)} \\  
+    \vdots & \ddots & \vdots \\ 
+    \cov{\bar{\varsigma}_m(t_k) - \varsigma_m(t_k), \bar{\chi}_1(t_k) - \chi_1(t_k)} & 
+    \cdots & 
+    \cov{\bar{\varsigma}_m(t_k) - \varsigma_m(t_k), \bar{\varsigma}_m(t_k) - \varsigma_m(t_k)}   
+  \end{bmatrix}
+  = \\ = 
+  \begin{bmatrix}
+    \bar{P}_{\chi_1 \chi_1}(t_k) & \cdots & \bar{P}_{\chi_1 \varsigma_m}(t_k) \\ 
+    \vdots & \ddots & \vdots \\ 
+    \bar{P}_{\varsigma_m \chi_1}(t_k) & \cdots & \bar{P}_{\varsigma_m \varsigma_m}(t_k)  
+  \end{bmatrix}
+  \label{Bedin:eq:est-cov-pred}
+\end{multline} 
+и для матрицы ковариации ошибки основной оценки по измерениям до момента $t_k$ включительно 
+\begin{multline}
+  \hat{P}(t_k) = \cov{\hat{\xi}(t_k) - \xi(t_k)} 
+  = \\ = 
+  \begin{bmatrix}
+    \cov{\hat{\chi}_1(t_k) - \chi_1(t_k), \hat{\chi}_1(t_k) - \chi_1(t_k)} & 
+    \cdots & 
+    \cov{\hat{\chi}_1(t_k) - \chi_1(t_k), \hat{\varsigma}_m(t_k) - \varsigma_m(t_k)} \\  
+    \vdots & \ddots & \vdots \\ 
+    \cov{\hat{\varsigma}_m(t_k) - \varsigma_m(t_k), \hat{\chi}_1(t_k) - \chi_1(t_k)} & 
+    \cdots & 
+    \cov{\hat{\varsigma}_m(t_k) - \varsigma_m(t_k), \hat{\varsigma}_m(t_k) - \varsigma_m(t_k)}   
+  \end{bmatrix}
+  = \\ = 
+  \begin{bmatrix}
+    \hat{P}_{\chi_1 \chi_1}(t_k) & \cdots & \hat{P}_{\chi_1 \varsigma_m}(t_k) \\ 
+    \vdots & \ddots & \vdots \\ 
+    \hat{P}_{\varsigma_m \chi_1}(t_k) & \cdots & \hat{P}_{\varsigma_m \varsigma_m}(t_k)  
+  \end{bmatrix}
+  \,.
+  \label{Bedin:eq:est-cov-corr}
+\end{multline} 
+
+Приведём общие уравнения для эволюции этих матриц. 
+В силу уравнения \eqref{Bedin:eq:x-s-big-dynamics} и \eqref{Bedin:eq:recursive-est-pred} справедливо 
+\begin{gather*}
+  \bar{\xi}(t_k) - \xi(t_k) = 
+  A \hat{\xi}(t_{k - 1}) - A \xi(t_{k - 1}) - B v(t_k) = 
+  A \left( \hat{\xi}(t_{k - 1}) - \xi(t_{k - 1}) \right) - B v(t_k) \,.
+\end{gather*}
+Следовательно, в силу независимости случайной ошибки динамики $v(t_k)$ и 
+ошибок оценивания $\hat{\xi}(t_{k - 1}) - \xi(t_{k - 1})$, 
+зависящих от случайных величин $v(t)$, $w(t)$ при $t \in \mathcal{T}_{k - 1}$, 
+верно соотношение 
+\begin{gather}
+  \bar{P}(t_k) = 
+  \expect{
+    \left( \bar{\xi}(t_k) - \xi(t_k) \right)
+    \left( \bar{\xi}(t_k) - \xi(t_k) \right)^\mathsf{T}
+  }
+  = 
+  A \hat{P}(t_{k - 1}) A^\mathsf{T} + B V B^\mathsf{T}
+  \,. 
+  \label{Bedin:eq:est-cov-pred-evolution}
+\end{gather}
+
+Пусть выполнено условие несмещённости и уравнение коррекции \eqref{Bedin:eq:recursive-est-corr} 
+переходит в \eqref{Bedin:eq:recursive-est-corr-unbiased}, 
+тогда для произвольного матричного коэффициента $K$ (без разницы каким образом полученного) справедливо 
+\begin{multline*}
+  \hat{\xi}(t_k) - \xi(t_k) = 
+  \bar{\xi}(t_k) - \xi(t_k) + 
+  K \left( z(t_k) - C \hat{\xi}(t_k) \right) = \\ = 
+  \bar{\xi}(t_k) - \xi(t_k) + 
+  K \left( C \xi(t_k) + w(t_k) - C \hat{\xi}(t_k) \right) = 
+  \left( I - K C \right) \left( \bar{\xi}(t_k) - \xi(t_k) \right) + 
+  K w(t_k) \,. 
+\end{multline*}
+Так же как и при выводе соотношения для $\bar{P}(t_k)$, 
+можно утверждать о независимости случайной ошибки наблюдения $w(t_k)$ и 
+ошибок оценивания $\bar{\xi}(t_k) - \xi(t_k)$, так как последние зависят от 
+случайных величин $v(t)$, $w(t)$ при $t \in \mathcal{T}_{k - 1}$ и от $v(t_k)$. 
+Следовательно, верно соотношение 
+\begin{multline}
+  \hat{P}(t_k) = 
+  \expect{
+    \left( \hat{\xi}(t_k) - \xi(t_k) \right)
+    \left( \hat{\xi}(t_k) - \xi(t_k) \right)^\mathsf{T}
+  }
+  = \\ = 
+  (I - K C) \bar{P}(t_k) (I - K C)^\mathsf{T} + K W K^\mathsf{T}
+  \label{Bedin:eq:est-cov-corr-evolution}
+\end{multline}
+известное как {\it формула Иозефа}. 
+
+Для критерия \eqref{Bedin:eq:crit} известна формула 
+\begin{gather}
+  J(t_k) = \tr{h^\mathsf{T} \hat{P}(t_k) h} \,. 
+  \label{Bedin:eq:crit-trace}
+\end{gather}
+
+\section{Уравнения оптимальной фильтрации}
+
+Уравнения оптимальной фильтрации можно получить, минимизируя след матрицы $\hat{P}(t_k)$ 
+в соотношении \eqref{Bedin:eq:est-cov-corr-evolution} варьированием различных матричных коэффициентов $K$. 
+При этом выводится коэффициент $K^*(t_k)$ минимизирующий критерий на каждом шаге работы алгоритма. 
+\begin{gather}
+  K^*(t_k) = \bar{P}(t_k) C^\mathsf{T} 
+  \left( C \bar{P}(t_k) C^\mathsf{T} + D W D^\mathsf{T} \right)^\mathsf{-1} 
+  \,.
+  \label{Bedin:eq:Kalman-gain}
+\end{gather}
+Интересно, что оптимальное значение $K^*$ подходит и для любого $h$ в формуле \eqref{Bedin:eq:crit-trace}, 
+т.~е. соответствует равномерной по $h$ оценке. 
+
+Полностью, с подстановкой соотношения \eqref{Bedin:eq:Kalman-gain}, уравнения рекуррентной фильтрации 
+называются уравнениями фильтра Калмана (или реккуррентной оценки Гаусса-Маркова для случая $B = 0$). 
+Приведём их полностью: 
+\begin{align}
+  \bar{\xi}(t_k) & = A \hat{\xi}(t_{k - 1}) 
+  \,, \notag \\
+  \bar{P}(t_k) & = A \hat{P}(t_{k - 1}) A^\mathsf{T} + B V B^\mathsf{T}
+  \,, \notag \\ 
+  \Lambda & = C \bar{P}(t_k) C^\mathsf{T} + D W D^\mathsf{T} 
+  \,, \notag \\ 
+  K^* & = \bar{P}(t_k) C^\mathsf{T} \Lambda^\mathsf{-1}
+  \,, \notag \\ 
+  \hat{\xi}(t_k) & = \bar{\xi}(t_k) + K^* 
+  \left( z(t_k) - C \, \bar{\xi}(t_k) \right)  
+  \,, \label{Bedin:eq:Kalman-filter} \\ 
+  \hat{P}(t_k) & = 
+  (I - K^* C) \bar{P}(t_k) (I - K^* C)^\mathsf{T} + K^* W K^{* \mathsf{T}}
+  = \notag \\ 
+  & = (I - K^* C) \bar{P}(t_k) = \bar{P}(t_k) - K^* \Lambda K^{* \mathsf{T}} 
+  \,. \notag
+\end{align}
+Матрица $\Lambda$ является матрицей ковариации отклонения прогнозного измерения $C \bar{\xi}(t_k)$ 
+от действительного измерения $z(t_k)$. 
+
+Отметим, что в качестве дополнительных параметров $R(t_k)$, по которым пересчитывается коэффициент $K$, 
+в данном случае выступают прогнозная $\bar{P}(t_k)$ и действительная $\hat{P}(t_k)$ 
+матрицы ковариаций ошибок оценивания. 
 
 
-\subsection{Полная система}
+
 Фильтр для фазового вектора. \\
 
 \noindent Этап предсказания:
@@ -519,8 +705,6 @@ C_{s}H^T + DD^T\] \\
 
 Уравнение наблюдения:
 \[z_{t} = C_{x}x_{t} + C_{s}s_{t} + Dw\]
-
-\newpage
 
 \subsection{Разделённые фильтры для фазового вектора и для систематической ошибки}
 \noindent Фильтр для фазового вектора. \\
