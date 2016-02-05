@@ -151,7 +151,7 @@ $A_i$ --- матрица, формирующая вид движения системы, зависящая от текущего значе
 Формирование наблюдений $z_{i j}$ будем описывать следующим уравнением наблюдения, 
 несколько более сложным, чем уравнение \eqref{Bedin:eq:z-simple}: 
 \begin{gather}
-  z_{i j}(t) = C^\chi(t_k)_i \chi_i(t_k) + 
+  z_{i j}(t) = C^\chi_i(t_k) \chi_i(t_k) + 
   C^\varsigma_j(t_k, \chi_i(t_k)) \varsigma_j(t_k) + 
   D_j(t_k, \chi_i(t_k)) w_j(t_k) \,. 
   \label{Bedin:eq:z-small-dynamics}
@@ -627,110 +627,339 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 \end{align}
 Матрица $\Lambda$ является матрицей ковариации отклонения прогнозного измерения $C \bar{\xi}(t_k)$ 
 от действительного измерения $z(t_k)$. 
+Два последних равенства в формуле для $\hat{P}(t_k)$ широко известны в литературе по фильтру Калмана. 
+Однако следует отдавать себе отчёт, что эти соотношения ориентированы на специфический выбор $K$, 
+и в общем случае не верны. 
 
 Отметим, что в качестве дополнительных параметров $R(t_k)$, по которым пересчитывается коэффициент $K$, 
 в данном случае выступают прогнозная $\bar{P}(t_k)$ и действительная $\hat{P}(t_k)$ 
 матрицы ковариаций ошибок оценивания. 
 
+Рассмотрим важную особенность фильтра Калмана. 
+Даже для изучаемой нами системы с её специфическим видом уравнения наблюдения 
+\eqref{Bedin:eq:z-big-dynamics} и матрицы $C$ будет справедливо: 
+\begin{gather*}
+  \bar{P}(t_k) C^\mathsf{T} = 
+  \begin{bmatrix}
+    \bar{P}_{\cdot \chi_i}(t_k) (C^\chi_i)^\mathsf{T} & 
+    \bar{P}_{\cdot \varsigma_j}(t_k) (C^\varsigma_j)^\mathsf{T} 
+  \end{bmatrix}
+  \,, 
+\end{gather*} 
+где под символами $\bar{P}_{\cdot \chi_i}$, $\bar{P}_{\cdot \varsigma_j}$ 
+понимаются столбцы матрицы $\bar{P}$, соответствующие переменным $\chi_i$ и $\varsigma_j$. 
+Таким образом, в коэффициенте $K^*$ активными (не равными нулю) 
+являются все строки для всех движений ВС и всех параметров радиолокаторов, 
+несмотря на то, что текущее измерение связано с конкретным ВС и конкретным радиолокатором. 
+Т.~е. коррекция оценки $\bar{\xi}$ затрагивает все переменные, и коррекция матрицы ковариации $\bar{P}$
+производится по всем строкам и столбцам.  
 
-
-Фильтр для фазового вектора. \\
-
-\noindent Этап предсказания:
-\[\bar{x}_{t} = A_{x}\hat{x}_{t-1} \]
-\[\bar{P}_{x,t} = A_{x}\hat{P}_{x,t-1}A_{x}^T + B_{x}B_{x}^T\]
-Этап коррекции:
-\[\hat{x}_{t} = \bar{x}_{t} + K_{x}\Lambda(z_{t} - C_{x}\bar{x}_{t} - C_{s}\bar{s}_{t})\]
-\[\hat{P}_{x,t} = \bar{P}_{x,t} - K_{x}\Lambda K_{x}^T\]
-\[K_{x} = \bar{P}_{x,t}C_{x}^T + \bar{P}_{xs,t}C_{s}^T \] \\
-\noindent Фильтр для систематической ошибки. \\
-
-
-\noindent Этап предсказания:
-\[\bar{s}_{t} = A_{s}\hat{s}_{t-1} \]
-\[\bar{P}_{s,t} = A_{s}\hat{P}_{s,t-1}A_{s}^T + B_{s}B_{s}^T\]
-Этап коррекции:
-\[\hat{s}_{t} = \bar{s}_{t} + K_{s}\Lambda(z_{t} - C_{x}\bar{x}_{t} - C_{s}\bar{s}_{t})\]
-\[\hat{P}_{s,t} = \bar{P}_{s,t} - K_{s}\Lambda K_{s}^T\]
-\[K_{s} = \bar{P}_{s,t}C_{s}^T + \bar{P}_{xs,t}^TC_{x}^T \] 
-Обновление блока кросс-ковариации:
-\[\bar{P}_{xs,t} = A_{x}\hat{P}_{xs,t-1}A_{s}^T\]
-\[\hat{P}_{xs,t} = \bar{P}_{xs,t} - K_{x}\Lambda K_{s}^T\] 
-В данном случае для обоих фильтров используется одна матрица $\Lambda$:
-\[\Lambda = C_{x}\bar{P}_{x,t}C_{x}^T + C_{s}\bar{P}_{s,t}C_{s}^T + C_{x}\bar{P}_{xs,t}C_{s}^T + 
-C_{s}\bar{P}_{xs,t}^TC_{x}^T + DD^T\] 
+Рассмотрим соотношения фильтра Калмана в варианте, разделённом по фазовым переменным. 
+Здесь и далее матрицы ковариаций разделяются на блоки, соответствующие 
+частям фазового вектора $\chi$ и $\varsigma$: 
+\begin{gather*}
+  \bar{P} = 
+  \begin{bmatrix}
+    \bar{P}_{\chi \chi} & \bar{P}_{\chi \varsigma} \\ 
+    \bar{P}_{\varsigma \chi} & \bar{P}_{\varsigma \varsigma}  
+  \end{bmatrix}
+  \,, \qquad
+  \hat{P} = 
+  \begin{bmatrix}
+    \hat{P}_{\chi \chi} & \hat{P}_{\chi \varsigma} \\ 
+    \hat{P}_{\varsigma \chi} & \hat{P}_{\varsigma \varsigma}  
+  \end{bmatrix}
+  \,.
+\end{gather*}
 Уравнение наблюдения:
-\[z_{t} = C_{x}x_{t} + C_{s}s_{t} + Dw\]
+\begin{gather*}
+  z(t_k) = C^{\chi}_i \chi_i(t_k) + C^{\varsigma}_j \varsigma_j(t_k) + D_j w_j \,.
+\end{gather*}
 
-%\newpage
+\noindent 
+Фильтр для переменных, описывающих движение. 
+
+\noindent Этап предсказания:
+\begin{align*}
+  \bar{\chi}(t_k) & = A^\chi \hat{\chi}(t_{k - 1}) 
+  \,, \\
+  \bar{P}_{\chi \chi}(t_k) & = 
+    A^\chi \hat{P}_{\chi \chi}(t_{k - 1}) A^{\chi \, \mathsf{T}} + 
+    B^\chi V_{\chi \chi} B^{\chi \, \mathsf{T}} 
+  \,. 
+\end{align*}
+Этап коррекции:
+\begin{align}
+  K_{\chi} & = 
+  \left(
+    \bar{P}_{\chi \chi_i}(t_k) C^{\chi \, \mathsf{T}}_i + 
+    \bar{P}_{\chi \varsigma_j}(t_k) C^{\varsigma \, \mathsf{T}}_j
+  \right) \Lambda^\mathsf{-1} 
+  \,, \notag \\
+  \hat{\chi}(t_k) & = \bar{\chi}(t_k) + 
+  K_{\chi} \left( 
+    z(t_k) - C^{\chi}_i \bar{\chi}_i(t_k) - C^{\varsigma}_j \bar{\varsigma}_j(t_k) 
+  \right) 
+  \,, \label{Bedin:eq:part-KF-x-corr} \\
+  \hat{P}_{\chi \chi}(t_k) & = 
+  \bar{P}_{\chi \chi}(t_k) - K_{\chi} \Lambda K_{\chi}^\mathsf{T} 
+  \,. \notag
+\end{align} 
+
+\noindent Фильтр для систематической ошибки. 
+
+\noindent Этап предсказания:
+\begin{align*}
+  \bar{\varsigma}(t_k) & = 
+  A^\varsigma \hat{\varsigma}(t_{k - 1}) 
+  \,, \\
+  \bar{P}_{\varsigma \varsigma}(t_k) & = 
+  A^\varsigma \hat{P}_{\varsigma \varsigma}(t_{k - 1}) A^{\varsigma \, \mathsf{T}} + 
+  B^\varsigma V_{\varsigma} B^{\varsigma \, \mathsf{T}}
+  \,.
+\end{align*}
+Этап коррекции:
+\begin{align}
+  K_{\varsigma} & = 
+  \left(
+    \bar{P}_{\chi_i \varsigma}(t_k)^\mathsf{T} C^{\chi \, \mathsf{T}}_i + 
+    \bar{P}_{\varsigma \varsigma_j}(t_k) C^{\varsigma \, \mathsf{T}}_j 
+  \right) \Lambda^\mathsf{-1}
+  \,, \notag \\ 
+  \hat{\varsigma}(t_k) & = 
+  \bar{\varsigma}(t_k) + K_{\varsigma} \left( 
+    z(t_k) - C^{\chi}_i \bar{\chi}_i(t_k) - C^{\varsigma}_j \bar{\varsigma}_j(t_k) 
+  \right)
+  \,, \label{Bedin:eq:part-KF-s-corr} \\
+  \hat{P}_{\varsigma \varsigma}(t_k) & = 
+  \bar{P}_{\varsigma \varsigma}(t_k) - 
+  K_{\varsigma} \Lambda K_{\varsigma}^\mathsf{T}
+  \,. \notag
+\end{align}
+Обновление блока кросс-ковариации:
+\begin{align*}
+  \bar{P}_{\chi \varsigma}(t_k) & = A^\chi \hat{P}_{\chi \varsigma}(t_{k - 1}) A^{\varsigma \, \mathsf{T}}
+  \,, \\
+  \hat{P}_{\chi \varsigma}(t_k) & = \bar{P}_{\chi \varsigma}(t_k) - K_{\chi} \Lambda K_{\varsigma}^\mathsf{T}
+  \,.
+\end{align*} 
+Для обоих фильтров используется одна матрица $\Lambda$:
+\begin{gather}
+  \Lambda = 
+  C^{\chi}_i \bar{P}_{\chi_i \chi_i}(t_k) C^{\chi \, \mathsf{T}}_i + 
+  C^{\chi}_i \bar{P}_{\chi_i \varsigma_j}(t_k) C^{\varsigma \, \mathsf{T}}_j + 
+  C^{\varsigma}_j \bar{P}_{\chi_i \varsigma_j}(t_k)^\mathsf{T} C^{\chi \, \mathsf{T}}_i + 
+  C^{\varsigma}_j \bar{P}_{\varsigma_j \varsigma_j}(t_k) C^{\varsigma \, \mathsf{T}}_j + 
+  D_j W_j D_j^\mathsf{T} \,.
+  \label{Bedin:eq:part-KF-Lambda}
+\end{gather} 
 
 \section{Упрощеные алгоритмы оценивания по Henk Blom}
 
-В статье \cite{Blom1993} рассматривается точно такая же задача одновременного 
-оценивания движения многих ВС и определения систематических ошибок. 
+В статье \cite{Blom1993} также как и в данном отчёте рассматривается задача 
+одновременного оценивания движения многих ВС и определения систематических ошибок. 
 Приводятся варианты упрощения алгоритма фильтрации Калмана, 
-показавшие хорошую работу на практике.  
+показавшие хорошую работу на практике. 
+В основе этих упрощений лежит простое предположение. 
+Пусть мы рассматриваем уравнение коррекции \eqref{Bedin:eq:part-KF-x-corr}. 
+Давайте при этом считать, что неизвестное $\varsigma$ на самом деле нам известно, 
+т.~е. оценка $\bar{\varsigma}$ не является случайной величиной и совпадает с $\varsigma$. 
+Это может быть дальнейшим образом обобщено тем, 
+что ковариации $\bar{P}_{\chi \varsigma}$ и $\bar{P}_{\varsigma \varsigma}$ 
+равны нулю (т.~е. как бы не существуют) при вычислении текущей оценки $\hat{\chi}$ переменной $\chi$, 
+что приводит к следующему выражению: 
+\begin{gather}
+  \bar{P}_{\chi \varsigma}(t_k) C^{\varsigma \, \mathsf{T}} = 0 
+  \,, \quad \Longrightarrow \quad
+  K_\chi(t_k) = 
+  \bar{P}_{\chi \chi}(t_k) C^{\chi \, \mathsf{T}}
+  \,, 
+  \label{Bedin:eq:part-KF-Blom-K} \\
+  \Lambda_\chi = 
+  C^{\chi} \bar{P}_{\chi \chi}(t_k) C^{\chi \, \mathsf{T}} + 
+  D W D^\mathsf{T} \,.
+  \label{Bedin:eq:part-KF-Blom-Lambda}
+\end{gather} 
+%\begin{multline*}
+  %\expect{
+    %\left( z(t_k) - \bar{z}(t_k) \right)
+    %\left( \varsigma(t_k) - \bar{\varsigma}(t_k) \right)^\mathsf{T}
+  %} = 0 
+  %\Longrightarrow \,, \\ 
+  %\expect{
+    %\left( z(t_k) - \bar{z}(t_k) \right)
+    %\left( \varsigma(t_k) - \bar{\varsigma}(t_k) \right)^\mathsf{T}
+  %} 
+  %= \\ = 
+  %\expect{
+    %\left( 
+      %C^\chi (\chi(t_k) - \bar{\chi}(t_k)) + 
+      %C^\varsigma (\varsigma(t_k) - \bar{\varsigma}(t_k)) 
+    %\right)
+    %\left( \varsigma(t_k) - \bar{\varsigma}(t_k) \right)^\mathsf{T}
+  %} 
+  %= \\ = 
+  %C^\chi \bar{P}_{\chi \varsigma} + 
+  %C^\varsigma \bar{P}_{\varsigma \varsigma} 
+  %= 0
+  %\,.
+%\end{multline*}
 
 \subsection{Фильтр Калмана для фазового вектора, \\Макро фильтр для систематической ошибки}
-\noindent Фильтр для фазового вектора. \\
 
+\noindent Фильтр для переменных, описывающих движение. \\
 
 \noindent Этап предсказания:
-\[\bar{x}_{t} = A_{x}\hat{x}_{t-1} \]
-\[\bar{P}_{x,t} = A_{x}\hat{P}_{x,t-1}A_{x}^T + B_{x}B_{x}^T\]
+\begin{align*} 
+  \bar{\chi}(t_k) & = A^\chi\hat{\chi}(t_{k-1}) 
+  \,, \\ 
+  \bar{P}_{\chi \chi}(t_k) & = 
+  A^\chi \hat{P}_{\chi \chi}(t_{k - 1}) A^{\chi \, \mathsf{T}} + B^\chi B^{\chi \, \mathsf{T}}
+  \,.
+\end{align*}
 Этап коррекции:
-\[\hat{x}_{t} = \bar{x}_{t} + K_{x}\Lambda_{x}(z_{t} - C_{x}\bar{x}_{t} - C_{s}\bar{s}_{t})\]
-\[\hat{P}_{x,t} = \bar{P}_{x,t} - K_{x}\Lambda_{x} K_{x}^T\] 
+\begin{align*}
+  \hat{\chi}(t_k) & = \bar{\chi}(t_k) + K_{\chi} 
+  \left( 
+    z(t_k) - C^{\chi}\bar{\chi}(t_k) - C^{\varsigma} \bar{\varsigma}(t_k) 
+  \right)
+  \,, \\ 
+  \hat{P}_{\chi \chi}(t_k) & = 
+  \bar{P}_{\chi \chi}(t_k) - K_{\chi} \Lambda A^\chi K_{\chi}^\mathsf{T} 
+  \,.
+\end{align*} 
 Аппроксимация:
-\[K_{x} = \bar{P}_{x,t}C_{x}^T \]
-\[\Lambda_{x} = C_{x}\bar{P}_{x,t}C_{x}^T + DD^T\] \\
-Фильтр для систематической ошибки. \\
+\begin{align*}
+  K_{\chi} & = \bar{P}_{\chi \chi}(t_k) C^{\chi \, \mathsf{T}} \Lambda_\chi^\mathsf{-1}
+  \,, \\ 
+  \Lambda_\chi & = C^{\chi} \bar{P}_{\chi \chi}(t_k) C^{\chi \, \mathsf{T}} + D W D^\mathsf{T}
+  \,. 
+\end{align*}
 
+\noindent Фильтр для систематической ошибки. 
 
 \noindent Этап предсказания:
-\[\bar{s}_{t} = A_{s}\hat{s}_{t-1} \]
-\[\bar{P}_{s,t} = A_{s}\hat{P}_{s,t-1}A_{s}^T + B_{s}B_{s}^T\]
+\begin{align*}
+  \bar{\varsigma}(t_k) & = A^\varsigma \hat{\varsigma}(t_{k - 1}) 
+  \,, \\ 
+  \bar{P}_{\varsigma \varsigma}(t_k) & = 
+  A^\varsigma \hat{P}_{\varsigma \varsigma}(t_{k - 1}) A^{\varsigma \, \mathsf{T}} + 
+  B^\varsigma V_{\varsigma} B^{\varsigma \, \mathsf{T}}
+  \,. 
+\end{align*}
 Этап коррекции:
-\[\hat{s}_{t} = \bar{s}_{t} + K_{s}\Lambda_{s}(z_{t} - C_{x}\bar{x}_{t} - C_{s}\bar{s}_{t})\]
-\[\hat{P}_{s,t} = \bar{P}_{s,t} - K_{s}\Lambda_{s} K_{s}^T\] 
-В вычислении матриц $K_{s}$ и $\Lambda_{s}$ используются аппроксимация члена $C_{x}\bar{P}_{xs,t}$:
-\[K_{s} = \bar{P}_{s,t}C_{s}^T + H^T \]
-\[\Lambda = C_{x}\bar{P}_{x,t}C_{x}^T + C_{s}\bar{P}_{s,t}C_{s}^T + HC_{s}^T + 
-C_{s}H^T + DD^T\] \\
-Где $H$:
-\[F_{x} = \sum_{i = 1}^{M}(D_{i}D_{i}^T)^{-1}\]
-\[F_{s} = \sum_{i = 1}^{M}(D_{i}D_{i}^T)^{-1}C_{s,i}\]
-\[H = -(F_{x}^TF_{x})^{-1}F_{x}^TF_{s}\bar{P}_{s,t}\] 
-Где $M$ - количество радиолокаторов. \\
+\begin{align*}
+  \hat{\varsigma}(t_k) & = \bar{\varsigma}(t_k) + 
+  K_{\varsigma} \left( 
+    z(t_k) - C^{\chi}\bar{\chi}(t_k) - C^{\varsigma}\bar{\varsigma}(t_k) 
+  \right)
+  \,, \\ 
+  \hat{P}_{\varsigma \varsigma}(t_k) & = 
+  \bar{P}_{\varsigma \varsigma}(t_k) - K_{\varsigma} \Lambda_\varsigma K_{\varsigma}^\mathsf{T}
+  \,. 
+\end{align*} 
+В вычислении матриц $K_{\varsigma}$ и $\Lambda_\varsigma$ 
+используются аппроксимация члена $C^{\chi}\bar{P}_{\chi \varsigma}(t_k)$: 
+\begin{align*}
+  K_{\varsigma} & = 
+  \left(
+  \bar{P}_{\varsigma \varsigma}(t_k) C^{\varsigma \, \mathsf{T}} + H^\mathsf{T}
+  \right) \Lambda^\mathsf{-1}
+  \,, \\ 
+  \Lambda & = 
+  C^{\chi} \bar{P}_{\chi \chi}(t_k) C^{\chi \, \mathsf{T}} + 
+  C^{\varsigma} \bar{P}_{\varsigma \varsigma}(t_k) C^{\varsigma \, \mathsf{T}} + 
+  H C^{\varsigma \, \mathsf{T}} + C^{\varsigma} H^\mathsf{T} + 
+  D W D^\mathsf{T}
+  \,, 
+\end{align*} 
+где $H$ строится следующим образом:
+\begin{align*}
+  F_{\chi} & = 
+  \sum_{i = 1}^{m}(D_{i} W D_{i}^\mathsf{T})^\mathsf{-1}
+  \,, \\ 
+  F_{\varsigma} & = 
+  \sum_{i = 1}^{m}(D_{i} W D_{i}^\mathsf{T})^\mathsf{-1} C^{\varsigma}_j
+  \,, \\ 
+  H & = 
+  -(F_{\chi}^\mathsf{T} F_{\chi})^\mathsf{-1} 
+  F_{\chi}^\mathsf{T} F_{\varsigma} \bar{P}_{\varsigma \varsigma}(t_k)
+  \,.
+\end{align*} 
 
 Уравнение наблюдения:
-\[z_{t} = C_{x}x_{t} + C_{s}s_{t} + Dw\]
+\begin{gather*}
+  z(t_k) = C^{\chi} \chi(t_k) + C^{\varsigma} \varsigma(t_k) + D w \,. 
+\end{gather*}
 
 \subsection{Разделённые фильтры для фазового вектора и для систематической ошибки}
-\noindent Фильтр для фазового вектора. \\
 
-
-\noindent Этап предсказания:
-\[\bar{x}_{t} = A_{x}\hat{x}_{t-1} \]
-\[\bar{P}_{x,t} = A_{x}\hat{P}_{x,t-1}A_{x}^T + B_{x}B_{x}^T\]
-Этап коррекции:
-\[\hat{x}_{t} = \bar{x}_{t} + K_{x}\Lambda_{x}(z_{t} - C_{x}\bar{x}_{t} - C_{s}\bar{s}_{t})\]
-\[\hat{P}_{x,t} = \bar{P}_{x,t} - K_{x}\Lambda_{x} K_{x}^T\] 
-Аппроксимация:
-\[K_{x} = \bar{P}_{x,t}C_{x}^T \]
-\[\Lambda_{x} = C_{x}\bar{P}_{x,t}C_{x}^T + DD^T\] \\
-Фильтр для систематической ошибки. \\
-
+Фильтр для переменных, описывающих движение. 
 
 \noindent Этап предсказания:
-\[\bar{s}_{t} = A_{s}\hat{s}_{t-1} \]
-\[\bar{P}_{s,t} = A_{s}\hat{P}_{s,t-1}A_{s}^T + B_{s}B_{s}^T\]
+\begin{align*}
+  \bar{\chi}(t_k) & = A^\chi \hat{\chi}(t_{k - 1}) 
+  \,, \\ 
+  \bar{P}_{\chi \chi}(t_k) & = 
+  A^\chi \hat{P}_{\chi \chi}(t_{k - 1}) A^{\chi \, \mathsf{T}} + 
+  B^\chi B^{\chi \, \mathsf{T}}
+  \,. 
+\end{align*}
 Этап коррекции:
-\[\hat{s}_{t} = \bar{s}_{t} + K_{s}\Lambda_{s}(z_{t} - C_{x}\bar{x}_{t} - C_{s}\bar{s}_{t})\]
-\[\hat{P}_{s,t} = \bar{P}_{s,t} - K_{s}\Lambda_{s} K_{s}^T\]
+\begin{align*}
+  \hat{\chi}(t_k) & = \bar{\chi}(t_k) + 
+  K_{\chi} \left( 
+    z(t_k) - C^{\chi}\bar{\chi}(t_k) - C^{\varsigma}\bar{\varsigma}(t_k) 
+  \right)
+  \,, \\ 
+  \hat{P}_{\chi \chi}(t_k) & = 
+  \bar{P}_{\chi \chi}(t_k) - K_{\chi} \Lambda_\chi K_{\chi}^\mathsf{T}
+  \,. 
+\end{align*} 
 Аппроксимация:
-\[K_{s} = \bar{P}_{s,t}C_{s}^T \]
-\[\Lambda_{s} = C_{s}\bar{P}_{s,t}C_{s}^T + DD^T\]
+\begin{align*}
+  K_{\chi} & = \bar{P}_{\chi \chi}(t_k) C^{\chi \, \mathsf{T}} \Lambda_\chi^\mathsf{-1} 
+  \,, \\ 
+  \Lambda_\chi & = 
+  C^{\chi} \bar{P}_{\chi \chi}(t_k) C^{\chi \, \mathsf{T}} + 
+  D W D^\mathsf{T}
+\end{align*} 
+
+\noindent
+Фильтр для систематической ошибки. 
+
+\noindent Этап предсказания:
+\begin{align*}
+  \bar{\varsigma}(t_k) & = A^\varsigma \hat{\varsigma}(t_{k - 1}) 
+  \,, \\ 
+  \bar{P}_{\varsigma \varsigma}(t_k) & = 
+  A^\varsigma \hat{P}_{\varsigma \varsigma}(t_{k - 1}) A^{\varsigma \, \mathsf{T}} + 
+  B^\varsigma V_{\varsigma} B^{\varsigma \, \mathsf{T}}
+  \,. 
+\end{align*}
+Этап коррекции:
+\begin{align*}
+  \hat{\varsigma}(t_k) & = 
+  \bar{\varsigma}(t_k) + K_{\varsigma} \left( 
+    z(t_k) - C^{\chi}\bar{\chi}(t_k) - C^{\varsigma}\bar{\varsigma}(t_k) 
+  \right)
+  \,, \\ 
+  \hat{P}_{\varsigma \varsigma}(t_k) & = 
+  \bar{P}_{\varsigma \varsigma}(t_k) - K_{\varsigma} \Lambda_\varsigma K_{\varsigma}^\mathsf{T}
+  \,. 
+\end{align*}
+Аппроксимация:
+\begin{align*}
+  K_{\varsigma} & = 
+  \bar{P}_{\varsigma \varsigma}(t_k) C^{\varsigma \, \mathsf{T}} \Lambda_\varsigma^\mathsf{-1}
+  \, \\ 
+  \Lambda_\varsigma & = 
+  C^{\varsigma} \bar{P}_{\varsigma \varsigma}(t_k) C^{\varsigma \, \mathsf{T}} + 
+  D W D^\mathsf{T}
+  \,. 
+\end{align*}
 Уравнение наблюдения:
-\[z_{t} = C_{x}x_{t} + C_{s}s_{t} + Dw\]
+\begin{align*} 
+  z(t_k) & = C^{\chi} \chi(t_k) + C^{\varsigma}\varsigma(t_k) + D w \,. 
+\end{align*}
 
