@@ -1185,3 +1185,105 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 Ёто приводит к идее, что следует пытатьс€ найти оптимальный фильтр, заранее удовлетвор€ющий такому свойству, 
 которое в таком случае выступает как некоторое ограничение в задаче оптимизации. 
 
+ѕусть в рассматриваемый момент времени $t_k$ наблюдаетс€ движение с номером $i$ 
+и задействован радиолокатор с номером $j$. ”равнение наблюдени€ имеет вид 
+\begin{gather*}
+  z(t_k) = C^{\chi}_i \chi_i(t_k) + C^{\varsigma}_j \varsigma_j(t_k) + D_j w_j \,. 
+\end{gather*}
+ѕерегруппируем и переобозначим переменные, вход€щие в фазовый вектор $\xi$
+\begin{gather*}
+  \xi(t_k) = 
+  \begin{bmatrix}
+    \chi_i \\ 
+    \varsigma_j \\
+    y
+  \end{bmatrix}
+  \,.
+\end{gather*}
+¬ переменную $y$ вход€т параметры всех остальных движений, кроме $i$-го, 
+и параметры всех остальных радиолокаторов, кроме $j$-го. 
+Ќесмотр€ на замену, оставим прежние обозначени€ дл€ матриц, 
+присутствующих в уравнении динамики и уравнении наблюдени€. 
+Ќовые матрицы могут быть получены из старых путЄм простых линейных преобразований. 
+ѕрогнозна€ и скорректированна€ матрицы ковариаций ошибок оценивани€ раздел€ютс€ на следующие блоки: 
+\begin{gather*}
+  \bar{P}(t_k) = 
+  \begin{bmatrix}
+    \bar{P}_{\chi_i \chi_i}       & \bar{P}_{\chi_i \varsigma_j}      & \bar{P}_{\chi_i y}      \\ 
+    \bar{P}_{\varsigma_j \chi_i}  & \bar{P}_{\varsigma_j \varsigma_j} & \bar{P}_{\varsigma_j y} \\ 
+    \bar{P}_{y \chi_i}            & \bar{P}_{y \varsigma_j}           & \bar{P}_{y y} 
+  \end{bmatrix}
+  \,, \qquad 
+  \hat{P}(t_k) = 
+  \begin{bmatrix}
+    \hat{P}_{\chi_i \chi_i}       & \hat{P}_{\chi_i \varsigma_j}      & \hat{P}_{\chi_i y}      \\ 
+    \hat{P}_{\varsigma_j \chi_i}  & \hat{P}_{\varsigma_j \varsigma_j} & \hat{P}_{\varsigma_j y} \\ 
+    \hat{P}_{y \chi_i}            & \hat{P}_{y \varsigma_j}           & \hat{P}_{y y} 
+  \end{bmatrix}
+  \,. 
+\end{gather*}
+
+–ассматриваем коэффициенты фильтра $K$ следующего вида 
+\begin{gather}
+  K = 
+  \begin{bmatrix}
+    K_{\chi_i} \\ 
+    K_{\varsigma_j} \\ 
+    0
+  \end{bmatrix}
+  \,, 
+  \label{Bedin:eq:CI-K-wo-y}
+\end{gather}
+т. е. не воздействующие в ходе коррекции на часть переменных $y$. 
+ѕодставл€€ такой вид $K$ в формулу …озефа \eqref{Bedin:eq:est-cov-corr-evolution}, 
+получаем следующие выражени€ дл€ диагональных блоков скорректированной матрицы ковариации $\hat{P}$: 
+\begin{align}
+  \hat{P}_{\chi_i \chi_i} 
+  & = 
+  \left( I - K_{\chi_i} C^\chi_i \right) 
+  \bar{P}_{\chi_i \chi_i} 
+  \left( I - K_{\chi_i} C^\chi_i \right)^\mathsf{T} 
+  + \notag \\ 
+  & + 
+  \left( I - K_{\chi_i} C^\chi_i \right) 
+  \bar{P}_{\chi_i \varsigma_j} 
+  C^{\varsigma \, \mathsf{T}}_j K_{\chi_i}^\mathsf{T} 
+  +
+  K_{\chi_i} C^\varsigma_j
+  \bar{P}_{\varsigma_j \chi_i} 
+  \left( I - K_{\chi_i} C^\chi_i \right)^\mathsf{T} 
+  + \notag \\ 
+  & + 
+  K_{\chi_i} C^\varsigma_j
+  \bar{P}_{\varsigma_j \varsigma_j} 
+  C^{\varsigma \, \mathsf{T}}_j K_{\chi_i}^\mathsf{T} 
+  + 
+  K_{\chi_i} D_j W_j D_j^\mathsf{T} K_{\chi_i}^\mathsf{T}
+  \,, \label{Bedin:eq:CI-cov-x} \\ 
+  \hat{P}_{\varsigma_j \varsigma_j} 
+  & = 
+  \left( I - K_{\varsigma_j} C^\varsigma_j \right) 
+  \bar{P}_{\varsigma_j \varsigma_j} 
+  \left( I - K_{\varsigma_j} C^\varsigma_j \right)^\mathsf{T} 
+  + \notag \\ 
+  & + 
+  \left( I - K_{\varsigma_j} C^\varsigma_j \right) 
+  \bar{P}_{\varsigma_j \chi_i} 
+  C^{\chi \, \mathsf{T}}_i K_{\varsigma_j}^\mathsf{T} 
+  +
+  K_{\varsigma_j} C^\chi_i
+  \bar{P}_{\chi_i \varsigma_j} 
+  \left( I - K_{\chi_i} C^\chi_i \right)^\mathsf{T} 
+  + \notag \\ 
+  & + 
+  K_{\varsigma_j} C^\chi_i
+  \bar{P}_{\chi_i \chi_i} 
+  C^{\chi \, \mathsf{T}}_i K_{\varsigma_j}^\mathsf{T} 
+  + 
+  K_{\varsigma_j} D_j W_j D_j^\mathsf{T} K_{\varsigma_j}^\mathsf{T}
+  \,, \label{Bedin:eq:CI-cov-s} \\ 
+  \hat{P}_{y y} & = \bar{P}_{y y} 
+  \,, \label{Bedin:eq:CI-cov-y} 
+\end{align}
+
+
