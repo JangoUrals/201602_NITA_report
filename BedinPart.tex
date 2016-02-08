@@ -1187,13 +1187,13 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 
 Ключевое отличие алгоритмов, предложенных Henk Blom в статье \cite{Blom1993}, 
 от алгоритма фильтрации Калмана состоит в том, что матричный коэффициент фильтра $K$ 
-не равен нулю только для тех переменных, 
+отличен от нуля только для тех переменных, 
 которые непосредственно участвуют в уравнении наблюдения для текущего измерения. 
-Это приводит к идее, что следует пытаться найти оптимальный фильтр, заранее удовлетворяющий такому свойству, 
+Это приводит к идее, что следует находить оптимальный фильтр, заранее удовлетворяющий такому свойству, 
 которое в таком случае выступает как некоторое ограничение в задаче оптимизации. 
 
-Пусть в рассматриваемый момент времени $t_k$ наблюдается движение с номером $i$ 
-и задействован радиолокатор с номером $j$. Уравнение наблюдения имеет вид 
+Пусть в рассматриваемый момент времени $t_k$ движение с номером $i$ 
+измеряется радиолокатором с номером $j$. Уравнение наблюдения имеет вид 
 \begin{gather*}
   z(t_k) = C^{\chi}_i \chi_i(t_k) + C^{\varsigma}_j \varsigma_j(t_k) + D_j w_j \,. 
 \end{gather*}
@@ -1211,7 +1211,8 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 и параметры всех остальных радиолокаторов, кроме $j$-го. 
 Несмотря на замену, оставим прежние обозначения для матриц, 
 присутствующих в уравнении динамики и уравнении наблюдения. 
-Новые матрицы могут быть получены из старых путём простых линейных преобразований. 
+Новые матрицы могут быть получены из старых путём перестановок строк и столбцов. 
+%простых линейных преобразований. 
 Прогнозная и скорректированная матрицы ковариаций ошибок оценивания разделяются на следующие блоки: 
 \begin{gather*}
   \bar{P}(t_k) = 
@@ -1273,11 +1274,11 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
   \bar{P}_{\varsigma_j \varsigma_j} 
   \left( I - K_{\varsigma_j} C^\varsigma_j \right)^\mathsf{T} 
   + \notag \\ 
-  & + 
+  & - 
   \left( I - K_{\varsigma_j} C^\varsigma_j \right) 
   \bar{P}_{\varsigma_j \chi_i} 
   C^{\chi \, \mathsf{T}}_i K_{\varsigma_j}^\mathsf{T} 
-  +
+  -
   K_{\varsigma_j} C^\chi_i
   \bar{P}_{\chi_i \varsigma_j} 
   \left( I - K_{\chi_i} C^\chi_i \right)^\mathsf{T} 
@@ -1319,3 +1320,150 @@ $\hat{\xi}(t_k)$, $\bar{\xi}(t_k)$, $L(t_k, R(t_k))$, и~т.~д.
 что приводит к тем же самым трудностям, что и оптимальная фильтрация при помощи фильтра Калмана. 
 Следовательно, требуется устранить влияние кросс-ковариаций $\bar{P}_{\chi_i \varsigma_j}$ 
 на вычисления $K_{\chi_i}$ и при этом обеспечить не очень большое <<загрубление>>. 
+
+Рассмотрим блоки матрицы $\bar{P}$, участвующие в соотношении для блока $\hat{P}_{\chi_i \chi_i}$. 
+Легко проверить, что  
+\begin{gather*}
+  \begin{bmatrix}
+    \bar{P}_{\chi_i \chi_i}       & \bar{P}_{\chi_i \varsigma_j}      \\ 
+    \bar{P}_{\varsigma_j \chi_i}  & \bar{P}_{\varsigma_j \varsigma_j}  
+  \end{bmatrix}
+  \preccurlyeq 
+  \begin{bmatrix}
+    (1 + \gamma) \bar{P}_{\chi_i \chi_i} & 0 \\ 
+    0 & \left( 1 + \frac{1}{\gamma} \right) \bar{P}_{\varsigma_j \varsigma_j}  
+  \end{bmatrix}
+\end{gather*}
+при любом выборе $\gamma > 0$. Знак $\preccurlyeq$ означает порядок для симметричных матриц 
+в смысле положительной определённости. 
+Это матричное неравенство приводит к следующему матричному неравенству для $\hat{P}_{\chi_i \chi_i}$: 
+\begin{multline}
+  \hat{P}_{\chi_i \chi_i} 
+  \preccurlyeq 
+  (1 + \gamma) 
+  \left( I - K_{\chi_i} C^\chi_i \right) 
+  \bar{P}_{\chi_i \chi_i} 
+  \left( I - K_{\chi_i} C^\chi_i \right)^\mathsf{T} 
+  + \\ 
+  + 
+  \left( 1 + \frac{1}{\gamma} \right)
+  K_{\chi_i} C^\varsigma_j
+  \bar{P}_{\varsigma_j \varsigma_j} 
+  C^{\varsigma \, \mathsf{T}}_j K_{\chi_i}^\mathsf{T} 
+  + 
+  K_{\chi_i} D_j W_j D_j^\mathsf{T} K_{\chi_i}^\mathsf{T}
+  \,. 
+  \label{Bedin:eq:CI-Pxx}
+\end{multline}
+В работе \cite{CI2015} показано, что неравенство является существенно нестрогим, 
+т.~е. равенство достигается <<на некоторых направлениях>> в пространстве матриц, 
+и неравенство не может быть равномерно улучшено. 
+
+Опираясь на оценку \eqref{Bedin:eq:CI-Pxx}, легко предложить следующий алгоритм фильтрации. 
+Пусть для момента времени $t_{k - 1}$ выполнено 
+\begin{align*}
+  \hat{P}_{\chi_i \chi_i}(t_{k - 1})  & \preccurlyeq \hat{R}_{\chi_i \chi_i}(t_{k - 1}) \,, \\ 
+  \hat{P}_{\varsigma_j \varsigma_j}(t_{k - 1}) & \preccurlyeq \hat{R}_{\varsigma_j \varsigma_j}(t_{k - 1}) \,.  
+\end{align*}
+Тогда, основываясь на следующем свойстве 
+\begin{gather*}
+  A \preccurlyeq B \; \Longrightarrow\ \; C A C^\mathsf{T} \preccurlyeq C B C^\mathsf{T} \, 
+\end{gather*}
+для произвольных неотрицательно определённых матриц $A$, $B$ и произвольной матрицы $C$, 
+а также на виде прогнозной матрицы ковариации \eqref{Bedin:eq:est-cov-pred-evolution}, 
+можно утверждать, что и  
+\begin{align*}
+  \bar{P}_{\chi_i \chi_i}(t_k) 
+  & \preccurlyeq 
+  A_i \hat{R}_{\chi_i \chi_i}(t_{k - 1}) A_i^\mathsf{T} + 
+  B_i V^\chi_i B_i^\mathsf{T} 
+  \triangleq 
+  \bar{R}_{\chi_i \chi_i}(t_k) 
+  \,, \\ 
+  \bar{P}_{\varsigma_j \varsigma_j}(t_k) 
+  & \preccurlyeq 
+  A_j^\varsigma \hat{R}_{\varsigma_j \varsigma_j}(t_{k - 1}) A_j^{\varsigma \, \mathsf{T}} + 
+  B_j^\varsigma V_j^\varsigma B_j^{\varsigma \, \mathsf{T}} 
+  \triangleq 
+  \bar{R}_{\varsigma_j \varsigma_j}(t_k) 
+  \,. 
+\end{align*}
+Следовательно, после воздействия коэффициента $K_{\chi_i}$ 
+для блока $\hat{P}_{\chi_i \chi_i}$ будет справедливо: 
+\begin{multline}
+  \hat{P}_{\chi_i \chi_i}(t_k) 
+  \preccurlyeq 
+  (1 + \gamma) 
+  \left( I - K_{\chi_i} C^\chi_i \right) 
+  \bar{R}_{\chi_i \chi_i} 
+  \left( I - K_{\chi_i} C^\chi_i \right)^\mathsf{T} 
+  + \\ 
+  + 
+  \left( 1 + \frac{1}{\gamma} \right)
+  K_{\chi_i} C^\varsigma_j
+  \bar{R}_{\varsigma_j \varsigma_j} 
+  C^{\varsigma \, \mathsf{T}}_j K_{\chi_i}^\mathsf{T} 
+  + 
+  K_{\chi_i} D_j W_j D_j^\mathsf{T} K_{\chi_i}^\mathsf{T}
+  \,. 
+  \label{Bedin:eq:CI-Pxx-est}
+\end{multline}
+Далее, матрицу в правой части \eqref{Bedin:eq:CI-Pxx-est} 
+можно выбрать исходя из минимума некоторого критерия, например следа, 
+при этом получив новую оценку $\hat{R}_{\chi_i \chi_i}$. 
+При минимизации следа путём варьирования $K_{\chi_i}$ получаются следующие соотношения: 
+\begin{align}
+  S^* 
+  & = 
+  (1 + \gamma) 
+  C^\chi_i \bar{R}_{\chi_i \chi_i}(t_k) C^{\chi \, \mathsf{T}}_i 
+  + 
+  \left( 1 + \frac{1}{\gamma} \right)
+  C^\varsigma_j \bar{R}_{\varsigma_j \varsigma_j}(t_k) C^{\varsigma \, \mathsf{T}}_j  
+  + 
+  D_j W_j D_j^\mathsf{T} 
+  \,, \notag \\ 
+  K^*_{\chi_i} 
+  & = 
+  (1 + \gamma) 
+  \bar{R}_{\chi_i \chi_i} C^{\chi \, \mathsf{T}}_i S^{* \, \mathsf{-1}} 
+  \,, \notag \\ 
+  \hat{R}_{\chi_i \chi_i}(t_k) 
+  & = 
+  (1 + \gamma) 
+  \left( 
+    \bar{R}_{\chi_i \chi_i}(t_k) - 
+    (1 + \gamma) 
+    \bar{R}_{\chi_i \chi_i} C^{\chi \, \mathsf{T}}_i S^{* \, \mathsf{-1}} 
+    C^\chi_i \bar{R}_{\chi_i \chi_i}(t_k) 
+  \right)
+  = \label{Bedin:eq:CI-Rxx-est} \\ & = 
+  (1 + \gamma) \bar{R}_{\chi_i \chi_i}(t_k) - 
+  K^*_{\chi_i} S^* K^{* \, \mathsf{T}}_{\chi_i}
+  \notag \, 
+\end{align}
+с условием 
+\begin{gather*}
+  \hat{P}_{\chi_i \chi_i}(t_k) \preccurlyeq \hat{R}_{\chi_i \chi_i}(t_k) \,. 
+\end{gather*}
+Соотношения \eqref{Bedin:eq:CI-Rxx-est} справедливы для произвольного $\gamma > 0$. 
+С помощью выбора $\gamma$ также можно улучшить качество аппроксимации, 
+минимизируя след $\hat{R}_{\chi_i \chi_i}$. 
+
+Аналогично можно вывести соотношения на оценку и коэффициент фильтра $K_{\varsigma_j}$ для $\varsigma_j$. 
+При этом можно пользоваться новой, независимо выбранной константой $\gamma$. 
+В итоге получается алгоритм оценивания, который работает гарантированно, 
+для произвольных матриц кросс-ковариаций $\bar{P}_{\chi \varsigma}$. 
+В качестве дополнительных параметров, по которым производится вычисление 
+\eqref{Bedin:eq:recursive-est-add-par} матричных коэффициентов фильтра, 
+выступают матрицы $\bar{R}_{\chi_i \chi_i}$, $\hat{R}_{\chi_i \chi_i}$, 
+$\bar{R}_{\varsigma_j \varsigma_j}$, $\hat{R}_{\varsigma_j \varsigma_j}$ 
+для всех $i = 1, \ldots, n$, $j = 1, \ldots, m$.  
+
+По видимому, впервые алгоритмы, основанные на соотношениях, близких к 
+\eqref{Bedin:eq:CI-Pxx-est}, \eqref{Bedin:eq:CI-Rxx-est}, 
+были предложены в \cite{CI1997} и были названы CI --- Covariance Intersection. 
+Однако полное обосование было получено лишь недавно, например, в работе \cite{CI2015}. 
+
+\section{Моделирование работы алгоритмов параллельной фильтрации}
+
