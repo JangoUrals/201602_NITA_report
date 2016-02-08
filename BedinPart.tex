@@ -1467,3 +1467,203 @@ $\bar{R}_{\varsigma_j \varsigma_j}$, $\hat{R}_{\varsigma_j \varsigma_j}$
 
 \section{Моделирование работы алгоритмов параллельной фильтрации}
 
+Было произведено численное моделирование алгоритмов фильтрации. 
+Рассматривались три алгоритма: фильтр Калмана (в качестве контрольного эталонного алгоритма), 
+разделённый фильтр по Henk Blom, фильтр, основанный на CI. 
+
+В качестве модельной задачи была взята задача наблюдения за воздушными судами на плоскости. 
+В качестве динамики ВС использовалось прямолинейное и равномерное движение 
+\eqref{Bedin:eq:x-straight-line-dynamics}. 
+Использовался набор из 15 движений, начальные условия которых были выбраны случайно. 
+Общий вид движений приведён на рис.~\ref{Bedin:pic:traj}. 
+Длительность движений была выбрана в 1000 с. 
+
+Наблюдающие радиолокаторы имели постоянные систематические ошибки по дальности и азимуту 
+и располагались в заданных точках на плоскости. Их характеристики приведены ниже в таблице 
+\begin{table*}[ht]%
+\begin{tabular}{|l|l|l|l|}
+  \hline 
+   & РЛС 1 & РЛС 2 & РЛС 3 \\
+  \hline 
+  \hline 
+  координаты, м, С & -20000 & 230000 & -35000 \\
+  $\phantom{\mbox{координаты, м,}}$ В & -20000 & -30000 & 235000 \\
+  сист. ошибка по азимуту, ${}^\circ$ 
+  & -0.19 & -0.16 & 0.17 \\
+  сист. ошибка по дальности, м 
+  & 400 & 130 & -300 \\
+  скорость дрейфа сист. ошибки по азимуту, ${}^\circ/c$ 
+  & 0.02 & 0.02 & 0.02 \\
+  скорость дрейфа сист. ошибки по дальности, м/c 
+  & 1 & 1 & 1 \\
+  случ. ошибка по азимуту, ${}^\circ$ 
+  & 0.05 & 0.05 & 0.05 \\
+  случ. ошибка по дальности, м 
+  & 15 & 15 & 15 \\
+  \hline
+\end{tabular}
+\end{table*}
+
+Измерения производились 1 раз в секунду. При этом все радиолокаторы одновременно наблюдали все движения. 
+На рис.~\ref{Bedin:pic:kf-dx}--\ref{Bedin:pic:kf-dr} представлены результаты работы фильтра Калмана: 
+отклонения между истинными параметрами движения и оценками. 
+Рассматриваются параметры: 
+на рис.~\ref{Bedin:pic:kf-dx} --- 
+вектор геометрического положения, отклонение рассчитывается в метрах; 
+на рис.~\ref{Bedin:pic:kf-dx} --- 
+вектор скорости, отклонение рассчитывается в м/с; 
+на рис.~\ref{Bedin:pic:kf-dx} --- 
+систематическая ошибка по азимуту, отклонение рассчитывается в ${}^\circ$; 
+на рис.~\ref{Bedin:pic:kf-dx} --- 
+систематическая ошибка по дальности, отклонение рассчитывается в метрах. 
+ 
+На всех рисунках синим цветом выведен график зависимости от времени отклонения рассматриваемой величины 
+для одной из случайных реализаций случайных ошибок измерений и случайных ошибок динамики. 
+Такой же график, но сделанный для усреднённого отклонения по 20 реализациям показан чёрной пунктирной кривой. 
+Красным показан график теоретической оценки отклонения параметра, сделанной при помощи 
+истинной матрицы ковариаций, пересчитываемой по уравнению \eqref{Bedin:eq:est-cov-corr-evolution}. 
+
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/traj.eps}%
+\vspace{-4mm}
+\caption{Модельные траектории и радиолокаторы. Положения радиолокаторов покзаны треугольниками}%
+\label{Bedin:pic:traj}%
+\end{figure}
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/kf-dx.eps}%
+\vspace{-4mm}
+\caption{Фильтр Калмана. Отклонение по вектору положения в метрах}%
+\label{Bedin:pic:kf-dx}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/kf-dv.eps}%
+\vspace{-4mm}
+\caption{Фильтр Калмана. Отклонение по вектору скорости в м/с}%
+\label{Bedin:pic:kf-dv}%
+\end{figure}
+\clearpage
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/kf-da.eps}%
+\vspace{-4mm}
+\caption{Фильтр Калмана. Отклонение для систематической ошибки по азимуту в ${}^\circ$}%
+\label{Bedin:pic:kf-da}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/kf-dr.eps}%
+\vspace{-4mm}
+\caption{Фильтр Калмана. Отклонение для систематической ошибки по дальности в метрах}%
+\label{Bedin:pic:kf-dr}%
+\end{figure}
+\clearpage
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/blom-dx.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр H. Blom. Отклонение по вектору положения в метрах}%
+\label{Bedin:pic:blom-dx}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/blom-dv.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр H. Blom. Отклонение по вектору скорости в м/с}%
+\label{Bedin:pic:blom-dv}%
+\end{figure}
+\clearpage
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/blom-da.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр H. Blom. Отклонение для систематической ошибки по азимуту в ${}^\circ$}%
+\label{Bedin:pic:blom-da}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/blom-dr.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр H. Blom. Отклонение для систематической ошибки по дальности в метрах}%
+\label{Bedin:pic:blom-dr}%
+\end{figure}
+\clearpage
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/ci-dx.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр на основе метода CI. Отклонение по вектору положения в метрах}%
+\label{Bedin:pic:ci-dx}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/ci-dv.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр на основе метода CI. Отклонение по вектору скорости в м/с}%
+\label{Bedin:pic:ci-dv}%
+\end{figure}
+\clearpage
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/ci-da.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр на основе метода CI. Отклонение для систематической ошибки по азимуту в ${}^\circ$}%
+\label{Bedin:pic:ci-da}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/ci-dr.eps}%
+\vspace{-4mm}
+\caption{Упрощённый фильтр на основе метода CI. Отклонение для систематической ошибки по дальности в метрах}%
+\label{Bedin:pic:ci-dr}%
+\end{figure}
+\clearpage
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/all-dx.eps}%
+\vspace{-4mm}
+\caption{Сравнение разных фильтров. Отклонение по вектору положения в метрах}%
+\label{Bedin:pic:all-dx}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/all-dv.eps}%
+\vspace{-4mm}
+\caption{Сравнение разных фильтров. Отклонение по вектору скорости в м/с}%
+\label{Bedin:pic:all-dv}%
+\end{figure}
+\clearpage
+
+\newpage
+\begin{figure}[ht]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/all-da.eps}%
+\vspace{-4mm}
+\caption{Сравнение разных фильтров. Отклонение для систематической ошибки по азимуту в ${}^\circ$}%
+\label{Bedin:pic:all-da}%
+\end{figure}
+\begin{figure}[hb]%
+\centering
+\includegraphics[width=0.8\columnwidth]{part1pict/all-dr.eps}%
+\vspace{-4mm}
+\caption{Сравнение разных фильтров. Отклонение для систематической ошибки по дальности в метрах}%
+\label{Bedin:pic:all-dr}%
+\end{figure}
+\clearpage
+
